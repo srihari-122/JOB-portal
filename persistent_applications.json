@@ -5,6 +5,13 @@
     "user_email": "manjari1998@gmail.com",
     "status": "accepted",
     "applied_date": "2025-10-14",
-    "updated_date": "2025-10-17"
+    "updated_date": "2025-10-18"
+  },
+  "2": {
+    "id": 2,
+    "job_id": 2,
+    "user_email": "manjari1998@gmail.com",
+    "status": "applied",
+    "applied_date": "2025-10-24"
   }
 }

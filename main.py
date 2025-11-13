@@ -3,7 +3,7 @@ Job Portal Application - Clean Version Without Extraction
 Simple job portal with basic functionality
 """
 
-from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Form, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -30,196 +30,18 @@ import time
 import pymongo
 from pymongo import MongoClient
 
-# Import Precision extractor and text extractor
-from resume_text_extractor import resume_text_extractor
+# Import only the extractors and analyzers that are actually used
 from ai_career_analyzer import ai_career_analyzer
-from ai_resume_analyzer import ai_resume_analyzer
-from improved_ai_career_analyzer import improved_ai_career_analyzer
-from universal_resume_extractor import universal_resume_extractor
-from advanced_ai_career_analyzer import advanced_ai_career_analyzer
 from simple_ai_analyzer import simple_ai_analyzer
-from precise_resume_extractor import precise_resume_extractor
-from ultra_precise_extractor import ultra_precise_extractor
-from perfect_extractor_v2 import perfect_extractor_v2
-from smart_pattern_analyzer import smart_pattern_analyzer
-from line_by_line_analyzer import line_by_line_analyzer
 from filename_based_extractor import filename_based_extractor
 from deep_text_analyzer import deep_text_analyzer
-from accurate_name_role_extractor import accurate_name_role_extractor
-from comprehensive_accurate_extractor import comprehensive_accurate_extractor
-from precise_name_role_extractor import precise_name_role_extractor
-from advanced_accurate_extractor import advanced_accurate_extractor
 from reliable_extractor import reliable_extractor
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Simple Career Analysis System
-class SimpleCareerAnalyzer:
-    """Simple career analyzer without AI/ML"""
-    
-    def __init__(self):
-        self.skill_market_demand = self.load_skill_market_demand()
-        self.salary_ranges = self.load_salary_ranges()
-        self.career_paths = self.load_career_paths()
-    
-    def load_skill_market_demand(self):
-        """Load skill market demand data dynamically"""
-        # This would ideally be loaded from a database or API
-        # For now, using a more comprehensive and dynamic approach
-        return {
-            'high_demand': ['Python', 'JavaScript', 'React', 'AWS', 'Docker', 'Kubernetes', 'TypeScript', 'Node.js', 'Spring Boot', 'Microservices'],
-            'medium_demand': ['Java', 'Angular', 'MySQL', 'Git', 'MongoDB', 'PostgreSQL', 'Redis', 'Elasticsearch'],
-            'emerging': ['Machine Learning', 'Data Science', 'AI', 'Cloud Computing', 'DevOps', 'Kubernetes', 'Terraform', 'Ansible'],
-            'trending': ['Vue.js', 'GraphQL', 'Serverless', 'Edge Computing', 'Blockchain', 'IoT', 'AR/VR']
-        }
-    
-    def load_salary_ranges(self):
-        """Load salary range data"""
-        return {
-            'entry_level': {'min': 300000, 'max': 500000},
-            'mid_level': {'min': 500000, 'max': 1000000},
-            'senior_level': {'min': 1000000, 'max': 2000000},
-            'lead_level': {'min': 1500000, 'max': 3000000}
-        }
-    
-    def load_career_paths(self):
-        """Load career path data"""
-        return {
-            'software_developer': {
-                'junior': 'Junior Developer → Mid Developer → Senior Developer → Lead Developer',
-                'specialization': 'Frontend → Backend → Full Stack → Architecture',
-                'management': 'Developer → Tech Lead → Engineering Manager → Director'
-            },
-            'data_scientist': {
-                'junior': 'Data Analyst → Data Scientist → Senior Data Scientist → Principal Data Scientist',
-                'specialization': 'Analytics → Machine Learning → AI Research → Product',
-                'management': 'Data Scientist → Team Lead → Data Science Manager → VP Data'
-            }
-        }
-    
-    def analyze_skills(self, skills):
-        """Analyze skills"""
-        try:
-            if not skills:
-                return {'error': 'No skills provided'}
-            
-            skill_analysis = {
-                'total_skills': len(skills),
-                'high_demand_skills': [s for s in skills if s in self.skill_market_demand['high_demand']],
-                'medium_demand_skills': [s for s in skills if s in self.skill_market_demand['medium_demand']],
-                'emerging_skills': [s for s in skills if s in self.skill_market_demand['emerging']],
-                'trending_skills': [s for s in skills if s in self.skill_market_demand['trending']],
-                'missing_high_demand': [s for s in self.skill_market_demand['high_demand'] if s not in skills],
-                'recommendations': []
-            }
-            
-            # Generate dynamic recommendations based on skill analysis
-            high_demand_count = len(skill_analysis['high_demand_skills'])
-            emerging_count = len(skill_analysis['emerging_skills'])
-            
-            if high_demand_count < 3:
-                skill_analysis['recommendations'].append(f"Consider learning more high-demand skills (currently have {high_demand_count})")
-            
-            if emerging_count == 0:
-                skill_analysis['recommendations'].append("Consider learning emerging technologies to stay competitive")
-            
-            if high_demand_count >= 5:
-                skill_analysis['recommendations'].append("Excellent high-demand skill coverage!")
-            
-            return skill_analysis
-            
-        except Exception as e:
-            return {'error': f'Skill analysis failed: {str(e)}'}
-    
-    def project_salary(self, experience_years, skills):
-        """Project salary based on experience and skills"""
-        try:
-            base_salary = 300000
-            
-            # Adjust based on experience
-            if experience_years >= 5:
-                level = 'senior_level'
-            elif experience_years >= 3:
-                level = 'mid_level'
-            else:
-                level = 'entry_level'
-            
-            salary_range = self.salary_ranges[level]
-            
-            # Adjust based on skills
-            skill_bonus = len(skills) * 10000
-            high_demand_bonus = len([s for s in skills if s in self.skill_market_demand['high_demand']]) * 20000
-            
-            projected_salary = salary_range['min'] + skill_bonus + high_demand_bonus
-            
-            return {
-                'projected_salary': min(projected_salary, salary_range['max']),
-                'salary_range': salary_range,
-                'level': level,
-                'skill_bonus': skill_bonus,
-                'high_demand_bonus': high_demand_bonus
-            }
-            
-        except Exception as e:
-            return {'error': f'Salary projection failed: {str(e)}'}
-    
-    def suggest_career_path(self, role, experience_years):
-        """Suggest career path"""
-        try:
-            role_lower = role.lower()
-            
-            if 'developer' in role_lower or 'engineer' in role_lower:
-                career_path = self.career_paths['software_developer']
-            elif 'data' in role_lower or 'analyst' in role_lower:
-                career_path = self.career_paths['data_scientist']
-            else:
-                career_path = self.career_paths['software_developer']  # Default
-            
-            # Determine current level
-            if experience_years >= 5:
-                current_level = 'senior'
-            elif experience_years >= 2:
-                current_level = 'mid'
-            else:
-                current_level = 'junior'
-            
-            return {
-                'career_path': career_path,
-                'current_level': current_level,
-                'next_steps': self._get_next_steps(current_level, experience_years)
-            }
-            
-        except Exception as e:
-            return {'error': f'Career path suggestion failed: {str(e)}'}
-    
-    def _get_next_steps(self, current_level, experience_years):
-        """Get next steps based on current level"""
-        if current_level == 'junior':
-            return [
-                "Build 2-3 significant projects",
-                "Learn version control (Git)",
-                "Practice coding problems daily",
-                "Get familiar with testing frameworks"
-            ]
-        elif current_level == 'mid':
-            return [
-                "Learn system design",
-                "Take on leadership responsibilities",
-                "Mentor junior developers",
-                "Get certified in relevant technologies"
-            ]
-        else:
-            return [
-                "Lead technical initiatives",
-                "Architect complex systems",
-                "Mentor multiple team members",
-                "Consider management track"
-            ]
-
-# Initialize career analyzer
-career_analyzer = SimpleCareerAnalyzer()
+# Career analysis is now handled by the imported analyzer modules
 
 # AI-powered resume extraction function
 def extract_resume_content_from_text(text, filename=None):
@@ -422,10 +244,9 @@ SMTP_PORT = 587
 EMAIL_USERNAME = "your-email@gmail.com"  # Replace with actual email
 EMAIL_PASSWORD = "your-app-password"     # Replace with actual app password
 
-# MongoDB configuration
-MONGODB_URL = "mongodb://localhost:27017"  # Local MongoDB
-# MONGODB_URL = "mongodb+srv://username:password@cluster.mongodb.net/jobportal"  # MongoDB Atlas
-DATABASE_NAME = "jobportal"
+# MongoDB configuration (optional - app works with in-memory storage)
+MONGODB_URL = os.getenv("MONGODB_URL", None)  # Optional MongoDB
+DATABASE_NAME = os.getenv("DATABASE_NAME", "jobportal")
 
 # Persistent storage for resumes
 RESUMES_FILE = "persistent_resumes.json"
@@ -532,9 +353,9 @@ def clear_cached_extraction_data():
         logger.error(f"❌ Error clearing cached data: {e}")
 
 # JWT configuration
-SECRET_KEY = "your-secret-key-here"
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
 # Security
 security = HTTPBearer()
@@ -563,7 +384,11 @@ app.add_middleware(
 # Templates
 templates = Jinja2Templates(directory="templates")
 
-# Static files
+# Static files - ensure directories exist
+os.makedirs("static", exist_ok=True)
+os.makedirs("uploads", exist_ok=True)
+os.makedirs("static/css", exist_ok=True)
+os.makedirs("static/js", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
@@ -589,13 +414,17 @@ class JobCreate(BaseModel):
 
 # Database functions
 def get_db_connection():
-    """Get MongoDB database connection"""
+    """Get MongoDB database connection (optional - app works without it)"""
+    if not MONGODB_URL:
+        logger.info("ℹ️ MongoDB not configured, using in-memory storage")
+        return None
     try:
         client = MongoClient(MONGODB_URL)
         db = client[DATABASE_NAME]
+        logger.info("✅ MongoDB connected successfully")
         return db
     except Exception as e:
-        logger.error(f"❌ MongoDB connection failed: {e}")
+        logger.warning(f"⚠️ MongoDB connection failed, using in-memory storage: {e}")
         return None
 
 def get_collection(collection_name: str):
@@ -723,12 +552,55 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
 
 # Routes
 @app.get("/", response_class=HTMLResponse)
-async def read_root():
-    return templates.TemplateResponse("index_final_v3.html", {"request": {}})
+async def read_root(request: Request):
+    return templates.TemplateResponse("index_final_v3.html", {"request": request})
 
 @app.get("/test")
 async def test_upload():
     return FileResponse("test_upload.html")
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring"""
+    return {
+        "status": "healthy",
+        "app": "Job Portal API",
+        "version": "1.0.0",
+        "database": "in-memory (JSON files)" if not MONGODB_URL else "MongoDB",
+        "users": len(users_db),
+        "jobs": len(jobs_db),
+        "applications": len(applications_db),
+        "resumes": len(resumes_db)
+    }
+
+@app.get("/api/health")
+async def api_health_check():
+    """API health check endpoint"""
+    return {
+        "status": "ok",
+        "message": "API is running",
+        "timestamp": datetime.now().isoformat()
+    }
+
+@app.get("/api/profile")
+async def get_profile(email: str = Depends(verify_token)):
+    """Return current user's profile based on JWT"""
+    try:
+        user = users_db.get(email)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return {
+            "email": user.get("email", email),
+            "name": user.get("name", ""),
+            "role": user.get("role", "candidate"),
+            "phone": user.get("phone", ""),
+            "location": user.get("location", "")
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting profile: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch profile")
 
 @app.post("/api/register")
 async def register(user: UserCreate):
@@ -2530,24 +2402,24 @@ async def get_all_applications(
                     experience_years = user_experience.get('total_years', 0)
                 elif isinstance(user_experience, (int, float)):
                     experience_years = user_experience
-            
-            applications_list.append({
-                "id": app_id,
+                
+                applications_list.append({
+                    "id": app_id,
                     "job_id": job_id_app,
-                "job_title": job_data.get('title', 'Unknown Job'),
-                "job_company": job_data.get('company', 'Unknown Company'),
+                    "job_title": job_data.get('title', 'Unknown Job'),
+                    "job_company": job_data.get('company', 'Unknown Company'),
                     "job_location": job_data.get('location', 'Unknown Location'),
-                "user_email": app_data.get('user_email'),
-                "user_name": user_data.get('name', 'Unknown User'),
+                    "user_email": app_data.get('user_email'),
+                    "user_name": user_data.get('name', 'Unknown User'),
                     "user_role": user_role,
                     "user_skills": user_skills,
                     "user_experience_years": experience_years,
-                "status": app_data.get('status', 'under_review') if app_data.get('status', 'under_review') != 'applied' else 'under_review',
-                "applied_date": app_data.get('applied_date'),
+                    "status": app_data.get('status', 'under_review') if app_data.get('status', 'under_review') != 'applied' else 'under_review',
+                    "applied_date": app_data.get('applied_date'),
                     "updated_date": app_data.get('updated_date'),
                     "has_resume": app_data.get('user_email') in resumes_db,
                     "resume_filename": user_data.get('resume_filename', 'N/A')
-            })
+                })
         
         # Add resume scores for each application
         for app in applications_list:

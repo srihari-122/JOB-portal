@@ -72,9 +72,10 @@ class JobPortal {
 
     updateNavigation() {
         const navButtons = document.querySelector('.flex.items-center.space-x-4');
+        const displayName = this.currentUser.name || this.currentUser.full_name || this.currentUser.email;
         navButtons.innerHTML = `
             <div class="flex items-center space-x-4">
-                <span class="text-gray-700">Welcome, ${this.currentUser.full_name}</span>
+                <span class="text-gray-700">Welcome, ${displayName}</span>
                 <button id="dashboardBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
                     <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
                 </button>
@@ -130,12 +131,19 @@ class JobPortal {
                 body: JSON.stringify({ email, password })
             });
 
-            // Check if response is ok before trying to parse JSON
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            let data = null;
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                console.error('Error parsing login response JSON:', jsonError);
             }
 
-            const data = await response.json();
+            if (!response.ok) {
+                const message = (data && (data.detail || data.message)) || 
+                    (response.status === 401 ? 'Invalid email or password' : 'Login failed. Please try again.');
+                this.showToast(message, 'error');
+                return;
+            }
 
             this.token = data.access_token;
             this.currentUser = data.user;

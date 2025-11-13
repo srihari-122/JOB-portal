@@ -8,5 +8,15 @@
     "requirements": "Preferred Qualifications:\n\nBachelor\u2019s degree in Computer Science, Information Technology, or related field.\n\nCertifications such as CCNA, CCNP, CompTIA Network+, or Juniper JNCIA.\n\n1\u20133 years of hands-on network administration experience.",
     "salary_range": "50000",
     "posted_date": "2025-10-13"
+  },
+  "2": {
+    "id": 2,
+    "title": "Data analyst",
+    "company": "Microsoft ",
+    "location": "Hyderabad",
+    "description": "Collect, clean, and preprocess structured and unstructured data from multiple sources.\n\nUse statistical techniques to analyze data and identify trends, patterns, and correlations.\n\nDevelop dashboards and reports using visualization tools such as Power BI, Tableau, or Excel.",
+    "requirements": "Proficiency in SQL, Excel, and Python/R for data manipulation and analysis.\n\nExperience with data visualization tools (Tableau, Power BI, Looker).\n\nKnowledge of statistical analysis and data modeling techniques.\n\nUnderstanding of ETL (Extract, Transform, Load) processes.\n\nFamiliarity with machine learning basics (preferred).",
+    "salary_range": "30000LPA",
+    "posted_date": "2025-10-18"
   }
 }
