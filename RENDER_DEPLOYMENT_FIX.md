@@ -60,7 +60,7 @@
 If you want to add a MongoDB database later, add this environment variable in Render:
 
 ```
-MONGODB_URL=mongodb+srv://username:password@cluster.mongodb.net/jobportal
+MONGODB_URL=mongodb+srv://<username>:<password>@cluster.mongodb.net/<database>
 ```
 
 ## ✅ VERIFICATION STEPS

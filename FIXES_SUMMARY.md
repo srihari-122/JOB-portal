@@ -384,7 +384,7 @@ curl https://job-portal-5-5nju.onrender.com/api/health
    # Sign up at https://www.mongodb.com/cloud/atlas
    # Create free cluster
    # Get connection string
-   # Add to Render environment: MONGODB_URL=mongodb+srv://...
+   # Add to Render environment: MONGODB_URL=mongodb+srv://<username>:<password>@<cluster-host>/<database>
    # App auto-detects and uses it!
    ```
 

@@ -100,7 +100,7 @@
 
 3. **Update Configuration**
    ```python
-   MONGODB_URL = "mongodb+srv://username:password@cluster.mongodb.net/jobportal"
+   MONGODB_URL = "mongodb+srv://<username>:<password>@cluster.mongodb.net/<database>"
    ```
 
 ### Local MongoDB
